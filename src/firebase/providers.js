@@ -2,87 +2,104 @@ import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndP
 import { FirebaseAuth } from "./config";
 import { login, logout } from "../store/auth";
 
-const googleProvider = new GoogleAuthProvider()
+import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
+import { FirebaseAuth } from "./config";
 
+// Proveedor de Google para la autenticación con Google.
+const googleProvider = new GoogleAuthProvider();
+
+// Función para iniciar sesión con Google.
 export const signInWithGoogle = async () => {
     try {
-        const result = await signInWithPopup(FirebaseAuth, googleProvider)
-        // const credentials = GoogleAuthProvider.credentialFromResult(result)
-        const user = result.user
-        const {displayName, email, photoURL, uid} = user
+        // Iniciar sesión con la ventana emergente de Google.
+        const result = await signInWithPopup(FirebaseAuth, googleProvider);
+        const user = result.user;
+        const { displayName, email, photoURL, uid } = user;
 
+        // Devolver los detalles del usuario en caso de éxito.
         return {
             ok: true,
-            // UserInfo
-            displayName, email, photoURL, uid
-        }
+            displayName,
+            email,
+            photoURL,
+            uid
+        };
     } catch (error) {
-        const errorCode = error.code
-        const errorMessage = error.message
-        console.log(`Numero de error: ${errorCode}, Error: ${errorMessage}`);
+        // Manejar errores y devolver un objeto con detalles del error.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(`Error Code: ${errorCode}, Message: ${errorMessage}`);
         return {
             ok: false,
             errorMessage
-        }
+        };
     }
-}
+};
 
+// Función para registrar un nuevo usuario con correo electrónico y contraseña.
 export const registerUserWithEmailPassword = ({ email, password, displayName }) => {
     return async (dispatch) => {
-      try {
-        const res = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
-        const { uid, photoURL } = res.user;
-        await updateProfile(FirebaseAuth.currentUser, { displayName });
-        
-        // Despacha la acción 'login' después de un registro exitoso
-        dispatch(login({ uid, displayName, email, photoURL }));
-        
-        return {
-          ok: true,
-          uid,
-          photoURL,
-          email,
-          displayName,
-        };
-      } catch (error) {
-        // Despacha la acción 'logout' en caso de un error
-        dispatch(logout({ errorMessage: error.message }));
-        
-        return {
-          ok: false,
-          errorMessage: error.message,
-        };
-      }
-    };
-  };
+        try {
+            // Crear un nuevo usuario con correo electrónico y contraseña.
+            const res = await createUserWithEmailAndPassword(FirebaseAuth, email, password);
+            const { uid, photoURL } = res.user;
 
-  export const loginWithEmailPassword = ( email, password ) => {
+            // Actualizar el perfil del usuario con el nombre proporcionado.
+            await updateProfile(FirebaseAuth.currentUser, { displayName });
+
+            // Despachar la acción de inicio de sesión después de un registro exitoso.
+            dispatch(login({ uid, displayName, email, photoURL }));
+
+            // Devolver detalles del usuario en caso de éxito.
+            return {
+                ok: true,
+                uid,
+                photoURL,
+                email,
+                displayName,
+            };
+        } catch (error) {
+            // Despachar la acción 'logout' en caso de un error.
+            dispatch(logout({ errorMessage: error.message }));
+
+            // Devolver detalles del error en caso de fallo.
+            return {
+                ok: false,
+                errorMessage: error.message,
+            };
+        }
+    };
+};
+
+// Función para iniciar sesión con correo electrónico y contraseña.
+export const loginWithEmailPassword = (email, password) => {
     return async (dispatch) => {
-      try {
-        // Intenta iniciar sesión con correo electrónico y contraseña
-        const res = await signInWithEmailAndPassword(FirebaseAuth, email, password);
-        const { uid, photoURL, displayName } = res.user;
-        console.log(res);
-        
-        // Despacha la acción 'login' después de un inicio de sesión exitoso
-        dispatch(login({ uid, displayName, email, photoURL }));
-        
-        return {
-          ok: true,
-          uid,
-          photoURL,
-          displayName,
-        };
-      } catch (error) {  
-        return {
-          ok: false,
-          errorMessage: error.message,
-        };
-      }
-    };
-  };
+        try {
+            // Iniciar sesión con correo electrónico y contraseña.
+            const res = await signInWithEmailAndPassword(FirebaseAuth, email, password);
+            const { uid, photoURL, displayName } = res.user;
 
-  export const logoutFirebase = async () => {
-    return await FirebaseAuth.signOut()
-  }
-  
+            // Despachar la acción de inicio de sesión después de un inicio de sesión exitoso.
+            dispatch(login({ uid, displayName, email, photoURL }));
+
+            // Devolver detalles del usuario en caso de éxito.
+            return {
+                ok: true,
+                uid,
+                photoURL,
+                displayName,
+            };
+        } catch (error) {
+            // Devolver detalles del error en caso de fallo.
+            return {
+                ok: false,
+                errorMessage: error.message,
+            };
+        }
+    };
+};
+
+// Función para cerrar sesión.
+export const logoutFirebase = async () => {
+    return await FirebaseAuth.signOut();
+};

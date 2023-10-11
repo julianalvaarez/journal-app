@@ -2,10 +2,8 @@
 import { initializeApp } from "firebase/app";
 import {getAuth} from 'firebase/auth';
 import {getFirestore} from 'firebase/firestore/lite';
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
+// Configuración de Firebase para la aplicación.
 const firebaseConfig = {
   apiKey: "AIzaSyD2xkjda3wpm_NBn-fOOuAa4_Tnh6UGAMA",
   authDomain: "journal-app-7da73.firebaseapp.com",
@@ -15,7 +13,10 @@ const firebaseConfig = {
   appId: "1:290891193348:web:5cc332d0b1593d31b0a951"
 };
 
-// Initialize Firebase
+// Inicializa la aplicación de Firebase.
 export const FirebaseApp = initializeApp(firebaseConfig);
+
+// Obtener instancias de servicios de Firebase.
 export const FirebaseAuth = getAuth(FirebaseApp);
 export const FirebaseDB = getFirestore(FirebaseApp);
+
